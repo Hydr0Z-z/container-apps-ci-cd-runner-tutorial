@@ -1,12 +1,40 @@
 FROM ghcr.io/actions/actions-runner:2.304.0
-# for latest release, see https://github.com/actions/runner/releases
+# For latest release, see https://github.com/actions/runner/releases
 
 USER root
 
-# install curl and jq
-RUN apt-get update && apt-get install -y curl jq && \
+# Install required packages and tools
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    jq \
+    unzip \
+    tar \
+    python3 \
+    python3-pip \
+    nodejs \
+    npm \
+    podman \
+    bsdmainutils \
+    gnupg \
+    lsb-release && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Terraform
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
+    apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
+    apt-get update && apt-get install -y terraform && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+# Install crane (container registry tool)
+RUN curl -LO https://github.com/google/go-containerregistry/releases/download/v0.19.1/crane_0.19.1_linux_amd64.tar.gz && \
+    tar -xzvf crane_0.19.1_linux_amd64.tar.gz -C /usr/local/bin crane && \
+    rm crane_0.19.1_linux_amd64.tar.gz
 
 COPY github-actions-runner/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
