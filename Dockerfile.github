@@ -14,6 +14,7 @@ RUN apt-get update && \
     python3-pip \
     nodejs \
     npm \
+    wget \
     podman \
     bsdmainutils \
     gnupg \
